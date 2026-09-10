@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>JBK Data Services — Data engineering and AI systems</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;600;700;800&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink: #0D1321;
+    --panel: #141C2B;
+    --panel-2: #182236;
+    --line: #2A3548;
+    --line-soft: #202B3D;
+    --amber: #E8A33D;
+    --blue: #6C9BF2;
+    --text: #EDEFF3;
+    --muted: #93A0B4;
+    --muted-2: #5F6D82;
+    --radius: 3px;
+    --max: 1120px;
+  }
+  *{box-sizing:border-box;}
+  html{scroll-behavior:smooth;}
+  body{
+    margin:0;
+    background:var(--ink);
+    color:var(--text);
+    font-family:'IBM Plex Sans', sans-serif;
+    font-size:16px;
+    line-height:1.55;
+    -webkit-font-smoothing:antialiased;
+  }
+  h1,h2,h3{
+    font-family:'Archivo', sans-serif;
+    font-weight:700;
+    margin:0;
+    letter-spacing:-0.01em;
+  }
+  .mono{font-family:'IBM Plex Mono', monospace;}
+  a{color:inherit;}
+  .wrap{max-width:var(--max); margin:0 auto; padding:0 32px;}
+  @media (max-width:640px){ .wrap{padding:0 20px;} }
+
+  /* ---------- nav ---------- */
+  header{
+    border-bottom:1px solid var(--line-soft);
+    position:sticky; top:0; background:rgba(13,19,33,0.92); backdrop-filter:blur(6px);
+    z-index:50;
+  }
+  nav{
+    display:flex; align-items:center; justify-content:space-between;
+    padding:18px 0;
+  }
+  .logo{
+    display:flex; align-items:baseline; gap:8px;
+    font-family:'Archivo', sans-serif; font-weight:800; font-size:18px;
+    color:var(--text); text-decoration:none;
+  }
+  .logo .dot{color:var(--amber);}
+  .navlinks{display:flex; gap:32px; font-size:14.5px; color:var(--muted);}
+  .navlinks a{text-decoration:none; transition:color .15s;}
+  .navlinks a:hover{color:var(--text);}
+  .nav-cta{
+    font-size:14px; padding:9px 16px; border:1px solid var(--line);
+    border-radius:var(--radius); text-decoration:none; color:var(--text);
+    transition:border-color .15s, background .15s;
+  }
+  .nav-cta:hover{border-color:var(--amber); background:rgba(232,163,61,0.06);}
+  .navlinks{ }
+  @media (max-width:760px){ .navlinks{display:none;} }
+
+  /* ---------- hero ---------- */
+  .hero{
+    padding:88px 0 96px;
+    border-bottom:1px solid var(--line-soft);
+  }
+  .hero-grid{
+    display:grid; grid-template-columns:1.05fr 0.95fr; gap:64px; align-items:center;
+  }
+  @media (max-width:900px){ .hero-grid{grid-template-columns:1fr; gap:56px;} }
+  .kicker{
+    font-family:'IBM Plex Mono', monospace; font-size:13px; color:var(--muted-2);
+    margin-bottom:18px;
+  }
+  .hero h1{
+    font-size:46px; line-height:1.12; color:var(--text);
+  }
+  @media (max-width:640px){ .hero h1{font-size:34px;} }
+  .hero p.lead{
+    margin-top:22px; font-size:17.5px; color:var(--muted); max-width:46ch;
+  }
+  .hero-ctas{ display:flex; gap:14px; margin-top:34px; flex-wrap:wrap; }
+  .btn-primary{
+    background:var(--amber); color:#1A1305; font-weight:600; text-decoration:none;
+    padding:13px 22px; border-radius:var(--radius); font-size:15px;
+    transition:filter .15s;
+  }
+  .btn-primary:hover{filter:brightness(1.08);}
+  .btn-secondary{
+    padding:13px 22px; border:1px solid var(--line); border-radius:var(--radius);
+    text-decoration:none; color:var(--text); font-size:15px; transition:border-color .15s;
+  }
+  .btn-secondary:hover{border-color:var(--blue);}
+
+  /* pipeline diagram */
+  .pipeline{
+    border:1px solid var(--line); border-radius:var(--radius); background:var(--panel);
+    padding:24px; font-family:'IBM Plex Mono', monospace; font-size:12.5px;
+  }
+  .pipeline-title{color:var(--muted-2); font-size:11px; margin-bottom:18px; letter-spacing:0.02em;}
+  .p-row{display:flex; align-items:center; gap:10px; margin-bottom:0;}
+  .p-node{
+    border:1px solid var(--line); border-radius:var(--radius); padding:10px 12px;
+    background:var(--panel-2); color:var(--muted); flex:1; text-align:center;
+  }
+  .p-node.active{ border-color:var(--amber); color:var(--amber); }
+  .p-node.blue{ border-color:var(--blue); color:var(--blue); }
+  .p-arrow{ color:var(--muted-2); font-size:14px; }
+  .p-stage{ margin-bottom:16px; }
+  .p-fanout{ display:flex; gap:16px; margin-top:16px; }
+  .p-fanout .p-node{flex:1;}
+  .p-connector{
+    display:flex; justify-content:center; color:var(--muted-2); font-size:13px; padding:4px 0;
+  }
+
+  /* ---------- section shell ---------- */
+  section{ padding:88px 0; border-bottom:1px solid var(--line-soft); }
+  .section-head{ max-width:60ch; margin-bottom:52px; }
+  .section-head .kicker{margin-bottom:14px;}
+  .section-head h2{ font-size:30px; color:var(--text); }
+  .section-head p{ margin-top:14px; color:var(--muted); font-size:16px; }
+
+  /* ---------- services (schema-table styling) ---------- */
+  .svc-table{ border:1px solid var(--line); border-radius:var(--radius); overflow:hidden; }
+  .svc-row{
+    display:grid; grid-template-columns:280px 1fr; border-top:1px solid var(--line);
+  }
+  .svc-row:first-child{border-top:none;}
+  @media (max-width:760px){ .svc-row{grid-template-columns:1fr;} }
+  .svc-key{
+    padding:28px 28px; background:var(--panel); border-right:1px solid var(--line);
+  }
+  @media (max-width:760px){ .svc-key{border-right:none; border-bottom:1px solid var(--line);} }
+  .svc-num{ font-family:'IBM Plex Mono', monospace; color:var(--muted-2); font-size:12px; margin-bottom:10px; }
+  .svc-key h3{ font-size:19px; color:var(--text); }
+  .svc-body{ padding:28px 28px; display:flex; flex-direction:column; justify-content:center; gap:14px;}
+  .svc-body p{ margin:0; color:var(--muted); font-size:15px; max-width:56ch; }
+  .svc-tags{ display:flex; flex-wrap:wrap; gap:8px; }
+  .svc-tag{
+    font-family:'IBM Plex Mono', monospace; font-size:12px; color:var(--blue);
+    border:1px solid var(--line); border-radius:var(--radius); padding:5px 9px;
+  }
+
+  /* ---------- how it works ---------- */
+  .how-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:1px; background:var(--line); border:1px solid var(--line); border-radius:var(--radius); overflow:hidden;}
+  @media (max-width:760px){ .how-grid{grid-template-columns:1fr;} }
+  .how-cell{ background:var(--panel); padding:30px 26px; }
+  .how-cell .mono{ color:var(--muted-2); font-size:12px; display:block; margin-bottom:14px;}
+  .how-cell h3{ font-size:17px; margin-bottom:10px; color:var(--text); }
+  .how-cell p{ color:var(--muted); font-size:14.5px; margin:0; }
+
+  /* ---------- stack ---------- */
+  .stack-row{ display:flex; flex-wrap:wrap; gap:12px; }
+  .stack-chip{
+    font-family:'IBM Plex Mono', monospace; font-size:13px; color:var(--muted);
+    border:1px solid var(--line); border-radius:var(--radius); padding:9px 14px;
+    background:var(--panel);
+  }
+
+  /* ---------- cta ---------- */
+  .cta-section{ border-bottom:none; padding-bottom:96px; }
+  .cta-box{
+    border:1px solid var(--line); border-radius:var(--radius); padding:56px;
+    display:flex; justify-content:space-between; align-items:center; gap:32px;
+    background:linear-gradient(135deg, var(--panel) 0%, var(--panel-2) 100%);
+  }
+  @media (max-width:760px){ .cta-box{flex-direction:column; align-items:flex-start; padding:36px;} }
+  .cta-box h2{ font-size:26px; max-width:20ch; }
+  .cta-box .mono{ color:var(--muted); font-size:14px; margin-top:10px; display:block;}
+
+  footer{ padding:36px 0; }
+  .foot-row{ display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:16px; color:var(--muted-2); font-size:13.5px; }
+  .foot-row a{ text-decoration:none; color:var(--muted-2); }
+  .foot-row a:hover{ color:var(--muted); }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="wrap">
+    <nav>
+      <a href="#" class="logo">JBK<span class="dot">·</span>Data Services</a>
+      <div class="navlinks">
+        <a href="#services">Services</a>
+        <a href="#tools">Free tools</a>
+        <a href="#how">How it works</a>
+      </div>
+      <a href="mailto:hello@jbkdataservices.com" class="nav-cta">Start a project</a>
+    </nav>
+  </div>
+</header>
+
+<section class="hero" style="border-bottom:1px solid var(--line-soft);">
+  <div class="wrap hero-grid">
+    <div>
+      <div class="kicker">Data &amp; AI systems for D2C and e-commerce sellers</div>
+      <h1>Know your real profit before the ad platform tells you a story.</h1>
+      <p class="lead">JBK Data Services connects Shopify, marketplaces, ad accounts, and inventory into one number you can trust — and ships free calculators so you can check your own numbers today.</p>
+      <div class="hero-ctas">
+        <a href="mailto:hello@jbkdataservices.com" class="btn-primary">Book a scoping call</a>
+        <a href="#tools" class="btn-secondary">Try the free tools</a>
+      </div>
+    </div>
+    <div class="pipeline">
+      <div class="pipeline-title">// current pipeline — D2C seller stack</div>
+
+      <div class="p-stage">
+        <div class="p-row">
+          <div class="p-node">shopify</div>
+          <div class="p-node">meta / google ads</div>
+          <div class="p-node">amazon · meesho</div>
+        </div>
+      </div>
+      <div class="p-connector">↓ sync &amp; reconcile</div>
+      <div class="p-stage">
+        <div class="p-node active" style="width:100%;">true profit per order</div>
+      </div>
+      <div class="p-connector">↓</div>
+      <div class="p-stage">
+        <div class="p-node blue" style="width:100%;">warehouse</div>
+      </div>
+      <div class="p-connector">↓</div>
+      <div class="p-fanout">
+        <div class="p-node">profit dashboard</div>
+        <div class="p-node">whatsapp order assistant</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="services">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="kicker">Services</div>
+      <h2>Four things I build, nothing else</h2>
+      <p>Each engagement starts narrow — one pipeline, one dashboard, one assistant — and expands once it's proven useful.</p>
+    </div>
+
+    <div class="svc-table">
+      <div class="svc-row">
+        <div class="svc-key">
+          <div class="svc-num">01</div>
+          <h3>Store &amp; Ad Data Sync</h3>
+        </div>
+        <div class="svc-body">
+          <p>Every platform talks to every other platform automatically — Shopify, Amazon, Meesho, and your ad accounts, reconciled into one place without a spreadsheet in the middle.</p>
+          <div class="svc-tags">
+            <span class="svc-tag">Shopify / Amazon / Meesho sync</span>
+            <span class="svc-tag">Ad platform data (Meta, Google)</span>
+            <span class="svc-tag">Order &amp; inventory pipelines</span>
+            <span class="svc-tag">Runs on Azure / AWS</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="svc-row">
+        <div class="svc-key">
+          <div class="svc-num">02</div>
+          <h3>Real Profit Dashboards</h3>
+        </div>
+        <div class="svc-body">
+          <p>Revenue isn't profit. See true margin per order, per SKU, and per channel — after COGS, platform fees, and ad spend — updated daily, not at month-end.</p>
+          <div class="svc-tags">
+            <span class="svc-tag">Profit &amp; margin dashboards</span>
+            <span class="svc-tag">Channel-wise reporting</span>
+            <span class="svc-tag">Power BI</span>
+            <span class="svc-tag">Automated daily reports</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="svc-row">
+        <div class="svc-key">
+          <div class="svc-num">03</div>
+          <h3>Ops Assistant</h3>
+        </div>
+        <div class="svc-body">
+          <p>A WhatsApp or internal assistant that answers "how much stock of X" or "why did this order fail" instantly, grounded in your real order and inventory data.</p>
+          <div class="svc-tags">
+            <span class="svc-tag">WhatsApp order assistant</span>
+            <span class="svc-tag">Stock &amp; returns Q&amp;A</span>
+            <span class="svc-tag">Customer support automation</span>
+            <span class="svc-tag">RAG on your own data</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="svc-row">
+        <div class="svc-key">
+          <div class="svc-num">04</div>
+          <h3>Order &amp; Catalog Checks</h3>
+        </div>
+        <div class="svc-body">
+          <p>Duplicate orders, mismatched SKUs across marketplaces, and a sync that silently broke last Tuesday — caught before they cost you a bad week.</p>
+          <div class="svc-tags">
+            <span class="svc-tag">Order reconciliation</span>
+            <span class="svc-tag">SKU / catalog checks</span>
+            <span class="svc-tag">Sync monitoring &amp; alerts</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="tools">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="kicker">Free tools</div>
+      <h2>Check your own numbers first</h2>
+      <p>No signup, no pitch — these run in your browser. If the numbers worry you, that's usually where an engagement starts.</p>
+    </div>
+
+    <div class="svc-table">
+      <div class="svc-row">
+        <div class="svc-key">
+          <div class="svc-num">build first</div>
+          <h3>True Profit Calculator</h3>
+        </div>
+        <div class="svc-body">
+          <p>Enter selling price, COGS, platform fees, and ad spend per order — get your real margin, not the number Shopify's dashboard shows you.</p>
+          <div class="svc-tags"><span class="svc-tag">Highest search intent, low competition</span></div>
+        </div>
+      </div>
+      <div class="svc-row">
+        <div class="svc-key">
+          <div class="svc-num">next</div>
+          <h3>Marketplace Fee Calculator</h3>
+        </div>
+        <div class="svc-body">
+          <p>Amazon, Flipkart, and Meesho commission + shipping + payment gateway fees, side by side, so you know your real payout before you list.</p>
+        </div>
+      </div>
+      <div class="svc-row">
+        <div class="svc-key">
+          <div class="svc-num">next</div>
+          <h3>Break-Even ROAS Calculator</h3>
+        </div>
+        <div class="svc-body">
+          <p>The minimum return on ad spend you need before a campaign is actually losing you money, factoring in your margin.</p>
+        </div>
+      </div>
+      <div class="svc-row">
+        <div class="svc-key">
+          <div class="svc-num">later</div>
+          <h3>GST Invoice Generator</h3>
+        </div>
+        <div class="svc-body">
+          <p>A quick, correct GST invoice for D2C sellers who don't want to open an accounting tool for one order.</p>
+        </div>
+      </div>
+      <div class="svc-row">
+        <div class="svc-key">
+          <div class="svc-num">later</div>
+          <h3>CAC vs LTV Calculator</h3>
+        </div>
+        <div class="svc-body">
+          <p>What you're really paying to acquire a customer, against what they're worth over repeat orders.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="how">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="kicker">How it works</div>
+      <h2>One person, three steps, no handoff</h2>
+      <p>You're not briefing an account manager who briefs an engineer. You're talking to the person who writes the code.</p>
+    </div>
+
+    <div class="how-grid">
+      <div class="how-cell">
+        <span class="mono">01 — scope</span>
+        <h3>One call to define the first deliverable</h3>
+        <p>We pick a single pipeline, dashboard, or assistant that pays for itself — not a six-month roadmap.</p>
+      </div>
+      <div class="how-cell">
+        <span class="mono">02 — build</span>
+        <h3>Shipped in weeks, not quarters</h3>
+        <p>You see working versions early. Nothing goes live without you understanding what it does and why.</p>
+      </div>
+      <div class="how-cell">
+        <span class="mono">03 — hand over</span>
+        <h3>You own it when we're done</h3>
+        <p>Documented, monitored, and built on standard tooling — so it doesn't depend on me staying involved forever.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="stack">
+  <div class="wrap">
+    <div class="section-head">
+      <div class="kicker">Stack</div>
+      <h2>Standard tools, not proprietary lock-in</h2>
+      <p>Everything is built on infrastructure your next hire will already recognize.</p>
+    </div>
+    <div class="stack-row">
+      <span class="stack-chip">Azure</span>
+      <span class="stack-chip">AWS</span>
+      <span class="stack-chip">Databricks</span>
+      <span class="stack-chip">Power BI</span>
+      <span class="stack-chip">Python</span>
+      <span class="stack-chip">PySpark</span>
+      <span class="stack-chip">SQL</span>
+      <span class="stack-chip">Delta Lake</span>
+      <span class="stack-chip">Airflow</span>
+    </div>
+  </div>
+</section>
+
+<section class="cta-section">
+  <div class="wrap">
+    <div class="cta-box">
+      <div>
+        <h2>Have a data problem worth fixing properly?</h2>
+        <span class="mono">hello@jbkdataservices.com</span>
+      </div>
+      <a href="mailto:hello@jbkdataservices.com" class="btn-primary">Book a scoping call</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap foot-row">
+    <div>JBK Data Services</div>
+    <div class="foot-row" style="gap:24px;">
+      <a href="mailto:hello@jbkdataservices.com">hello@jbkdataservices.com</a>
+      <a href="#services">Services</a>
+    </div>
+  </div>
+</footer>
+
+</body>
+</html>
